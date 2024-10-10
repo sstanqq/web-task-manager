@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "web-task-manager"
+version = "0.1.0"
+description = "A simple RESTful API application for managing a task list(ToDo list) based on the FastAPI framework"
+authors = ["sstanqq <danielstwich@gmail.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.0"
+uvicorn = "^0.31.1"
+pydantic = "^2.9.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
