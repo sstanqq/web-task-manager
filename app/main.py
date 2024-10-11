@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-app = FastAPI()
+app = FastAPI(title='Task Manager')
 
 
 @app.get('/')
