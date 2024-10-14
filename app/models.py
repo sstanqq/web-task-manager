@@ -1,5 +1,4 @@
 from typing import List, Optional
-from enum import Enum as PyEnum
 from sqlalchemy import ForeignKey, String, Text, Enum
 from sqlalchemy.orm import (
     DeclarativeBase,
@@ -7,6 +6,7 @@ from sqlalchemy.orm import (
     mapped_column,
     relationship
 )
+from app.enums import TaskStatus
 
 
 class Base(DeclarativeBase):
@@ -33,12 +33,6 @@ class User(Base):
             f'User(id={self.id!r}, first_name={self.first_name!r}, '
             f'last_name={self.last_name!r}, user_name={self.username!r})'
         )
-
-
-class TaskStatus(PyEnum):
-    NEW = 'New'
-    IN_PROGRESS = 'In Progress'
-    COMPLETED = 'Completed'
 
 
 class Task(Base):
