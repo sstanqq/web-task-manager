@@ -1,10 +1,10 @@
-# from typing import Optional
+from typing import Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 
 class UserBase(BaseModel):
     first_name: str
-    last_name: str | None
+    last_name: Optional[str] = None
     username: str
 
     model_config = ConfigDict(from_attributes=True)
@@ -23,10 +23,10 @@ class UserRead(UserBase):
 
 
 class UserUpdate(BaseModel):
-    first_name: str | None
-    last_name: str | None
-    username: str | None
-    password: str | None = Field(
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    username: Optional[str] = None
+    password: Optional[str] = Field(
         None,
         min_length=6,
         description="Password must contain at least 6 characters"

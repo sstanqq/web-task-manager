@@ -1,12 +1,11 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict
 from app.enums import TaskStatus
 
 
 class TaskBase(BaseModel):
     title: str
-    description: str | None
-    status: TaskStatus = Field(TaskStatus.NEW)
-    user_id: int
+    description: str | None = None
+    status: TaskStatus = TaskStatus.NEW
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -17,12 +16,13 @@ class TaskCreate(TaskBase):
 
 class TaskRead(TaskBase):
     id: int
+    user_id: int
 
 
 class TaskUpdate(BaseModel):
-    title: str | None
-    description: str | None
-    status: TaskStatus | None
+    title: str | None = None
+    description: str | None = None
+    status: TaskStatus | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -32,4 +32,4 @@ class TaskStatusUpdate(BaseModel):
 
 
 class TaskFilter(BaseModel):
-    status: TaskStatus | None
+    status: TaskStatus | None = None
