@@ -1,9 +1,8 @@
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status, Depends
-from app.schemas.users import UserCreate
 from fastapi.security import OAuth2PasswordBearer
 from app.models import User
-from app.services.users import get_user_by_username
+from app.schemas.auth import UserCreate
 from app.config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from datetime import datetime, timedelta, timezone
 import jwt
@@ -11,8 +10,31 @@ from passlib.context import CryptContext
 from app.database import get_db
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+
+
+def get_user_by_id(db: Session, user_id: int):
+    db_user = db.query(User).filter(User.id == user_id).first()
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return db_user
+
+
+def get_user_by_username(db: Session, username: str):
+    db_user = (
+        db.query(User)
+        .filter(User.username == username)
+        .first()
+    )
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return db_user
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
@@ -59,6 +81,17 @@ def get_current_user(token: str = Depends(oauth2_scheme),
 
 
 def register_user(db: Session, user: UserCreate):
+    existing_user = (
+        db.query(User)
+        .filter(User.username == user.username)
+        .first()
+    )
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Username already registered"
+        )
+
     hashed_password = pwd_context.hash(user.password)
     db_user = User(
         first_name=user.first_name,

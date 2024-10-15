@@ -1,8 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from app.schemas.users import UserCreate, UserRead
-from app.schemas.auth import Token
+from app.schemas.auth import UserCreate, UserRead, Token
 import app.services.auth as service
 from app.database import get_db
 

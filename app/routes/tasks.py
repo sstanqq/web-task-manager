@@ -7,7 +7,7 @@ from app.schemas.tasks import TaskCreate, TaskUpdate, TaskRead
 import app.services.tasks as service
 from app.database import get_db
 from app.services.auth import get_current_user
-from app.schemas.users import UserRead
+from app.schemas.auth import UserRead
 
 router = APIRouter()
 
