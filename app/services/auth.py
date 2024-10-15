@@ -14,6 +14,16 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
 def get_user_by_id(db: Session, user_id: int):
+    """
+    Retrieve a user from the database by their ID.
+
+    Args:
+        db (Session): Database session.
+        user_id (int): The ID of the user to retrieve.
+
+    Returns:
+        User: The user object if found, raises 404 if not found.
+    """
     db_user = db.query(User).filter(User.id == user_id).first()
     if not db_user:
         raise HTTPException(
@@ -24,6 +34,16 @@ def get_user_by_id(db: Session, user_id: int):
 
 
 def get_user_by_username(db: Session, username: str):
+    """
+    Retrieve a user from the database by their username.
+
+    Args:
+        db (Session): Database session.
+        username (str): The username of the user to retrieve.
+
+    Returns:
+        User: The user object if found, raises 404 if not found.
+    """
     db_user = (
         db.query(User)
         .filter(User.username == username)
@@ -38,6 +58,17 @@ def get_user_by_username(db: Session, username: str):
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    """
+    Create a JWT access token for user authentication.
+
+    Args:
+        data (dict): User data to include in the token payload.
+        expires_delta (timedelta, optional): Expiration time delta for the
+        token.
+
+    Returns:
+        str: Encoded JWT token.
+    """
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -53,6 +84,16 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 
 def get_current_user(token: str = Depends(oauth2_scheme),
                      db: Session = Depends(get_db)):
+    """
+    Retrieve the current user based on the provided JWT token.
+
+    Args:
+        token (str): The JWT token from the request.
+        db (Session): Database session.
+
+    Returns:
+        User: The current user object if valid, raises 401 if invalid.
+    """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -81,6 +122,17 @@ def get_current_user(token: str = Depends(oauth2_scheme),
 
 
 def register_user(db: Session, user: UserCreate):
+    """
+    Create a new user in the database.
+
+    Args:
+        db (Session): Database session.
+        user (UserCreate): User data for registration.
+
+    Returns:
+        User: The newly created user object, raises 400 if username already
+        exists.
+    """
     existing_user = (
         db.query(User)
         .filter(User.username == user.username)
@@ -106,6 +158,18 @@ def register_user(db: Session, user: UserCreate):
 
 
 def authenticate_user(db: Session, username: str, password: str):
+    """
+    Authenticate a user based on username and password.
+
+    Args:
+        db (Session): Database session.
+        username (str): The username of the user.
+        password (str): The password of the user.
+
+    Returns:
+        User: The authenticated user object, raises 401 if credentials are
+        invalid.
+    """
     user = db.query(User).filter(User.username == username).first()
     if not user or not pwd_context.verify(password, user.password):
         raise HTTPException(
