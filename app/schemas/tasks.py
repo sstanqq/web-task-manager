@@ -29,7 +29,3 @@ class TaskUpdate(BaseModel):
 
 class TaskStatusUpdate(BaseModel):
     status: TaskStatus
-
-
-class TaskFilter(BaseModel):
-    status: TaskStatus | None = None

@@ -1,7 +1,9 @@
 from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
+
 from app.models import Task
 from app.schemas.tasks import TaskCreate, TaskUpdate
-from fastapi import HTTPException, status
+from app.enums import TaskStatus
 
 
 def get_task_by_id(db: Session, task_id: int, user_id: int):
@@ -19,18 +21,32 @@ def get_task_by_id(db: Session, task_id: int, user_id: int):
     return task
 
 
-def get_tasks(db: Session, skip: int = 0, limit: int = 10):
-    tasks = db.query(Task).offset(skip).limit(limit).all()
-    return tasks
+def get_tasks(db: Session,
+              page: int = 1,
+              limit: int = 10,
+              status: TaskStatus | None = None):
+    query = db.query(Task)
 
-
-def get_user_tasks(db: Session, user_id: int, status: str | None = None):
-    query = db.query(Task).filter(Task.user_id == user_id)
+    if page < 1:
+        raise HTTPException(
+            status_code=400,
+            detail="Page must be greater than or equal to 1"
+        )
+    if limit <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Limit must be greater than 0"
+        )
 
     if status:
         query = query.filter(Task.status == status)
 
-    tasks = query.all()
+    tasks = query.offset((page - 1) * limit).limit(limit).all()
+    return tasks
+
+
+def get_user_tasks(db: Session, user_id: int):
+    tasks = db.query(Task).filter(Task.user_id == user_id).all()
     return tasks
 
 
@@ -71,3 +87,11 @@ def delete_task(db: Session, task_id: int, user_id: int):
 
     db.delete(task)
     db.commit()
+
+
+def mark_task_as_completed(db: Session, task_id: int, user_id: int):
+    task = get_task_by_id(db, task_id, user_id)
+    task.status = TaskStatus.COMPLETED
+    db.commit()
+    db.refresh(task)
+    return task
