@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: db_app
+    command: -p 5435
+    expose:
+      - 5435
+    env_file:
+      - .env-non-dev
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env-non-dev
+    container_name: web_app
+    command: |
+      sh -c '
+        alembic upgrade head && 
+        gunicorn app.main:app \
+          --worker-class=uvicorn.workers.UvicornWorker \
+          --bind=0.0.0.0:8000
+      '
+    ports:
+      - 7777:8000
+    depends_on:
+      - db
